@@ -43,7 +43,7 @@ public class RegisterActivity extends AppCompatActivity {
         password = findViewById(R.id.password);
         btn_register = findViewById(R.id.btn_register);
 
-        // 設置 Firebase 認證
+        // 取得 Firebase 的認證
         auth = FirebaseAuth.getInstance();
 
         // 註冊按鈕的監聽事件

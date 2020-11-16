@@ -5,10 +5,30 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class StartActivity extends AppCompatActivity {
     private Button login,register;
+    private FirebaseUser firebaseUser;
 
+    //========= onStart START =========//
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        // 取得用戶
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        // 確認用戶是否為 null
+        if(firebaseUser != null){ // 若已有用戶
+            startActivity(new Intent(StartActivity.this, MainActivity.class)); // 跳轉到 MainActivity
+            finish(); // 結束此頁
+        }
+    }
+    //========= onStart END =========//
+
+    //========= onCreate START =========//
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,4 +54,5 @@ public class StartActivity extends AppCompatActivity {
             }
         });
     }
+    //========= onCreate END =========//
 }
