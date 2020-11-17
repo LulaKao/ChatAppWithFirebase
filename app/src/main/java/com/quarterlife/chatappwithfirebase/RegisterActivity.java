@@ -80,7 +80,7 @@ public class RegisterActivity extends AppCompatActivity {
                             FirebaseUser firebaseUser = auth.getCurrentUser(); // 取得 user
                             String user_id = firebaseUser.getUid(); // 取得 user id
 
-                            reference = FirebaseDatabase.getInstance().getReference("Users").child(user_id); // 取得 Database 的參考
+                            reference = FirebaseDatabase.getInstance().getReference("Users").child(user_id); // 取得目前使用者的 Database 參考
 
                             HashMap<String, String> hashMap = new HashMap<>(); // 創建 HashMap
                             hashMap.put("id", user_id); // 放置 id 到 HashMap 裡

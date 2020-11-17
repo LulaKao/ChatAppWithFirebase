@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         // 取得用戶
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
-        // 取得 Database 的參考
+        // 取得目前使用者的 Database 參考
         reference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
 
         // 新增 Database 的 ValueEventListener

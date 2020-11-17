@@ -61,7 +61,7 @@ public class UsersFragment extends Fragment {
     private void readUsers() {
         // 取得目前的使用者
         final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        // 取得資料庫的參考
+        // 取得所有使用者的 Database 參考
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
         // addValueEventListener
         reference.addValueEventListener(new ValueEventListener() {
@@ -88,7 +88,7 @@ public class UsersFragment extends Fragment {
 
                 // 創建 UserAdapter
                 userAdapter = new UserAdapter(getContext(), mUsers);
-                
+
                 // 綁定適配器並呈現在 recyclerView 上
                 recyclerView.setAdapter(userAdapter);
             }
