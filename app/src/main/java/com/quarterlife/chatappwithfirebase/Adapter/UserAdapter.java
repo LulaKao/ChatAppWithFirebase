@@ -49,7 +49,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
             public void onClick(View view) {
                 // 跳轉到 MessageActivity
                 Intent intent = new Intent(mContext, MessageActivity.class);
-                intent.putExtra("userid", user.getId()); // 把 user id 傳到 MessageActivity
+                intent.putExtra("userid", user.getId()); // 把點擊的 user id 傳到 MessageActivity
                 mContext.startActivity(intent);
             }
         });
