@@ -69,7 +69,7 @@ public class MessageActivity extends AppCompatActivity {
         // 設定 RecyclerView
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setStackFromEnd(true); // 從底部開始向上展示，數據會逆序添加。頁面定位在布局底部。
 //        linearLayoutManager.setReverseLayout(true); // 將數據從布局的底部由下往上排列。上滑加載後面的數據。頁面定位在布局底部。
         recyclerView.setLayoutManager(linearLayoutManager);
