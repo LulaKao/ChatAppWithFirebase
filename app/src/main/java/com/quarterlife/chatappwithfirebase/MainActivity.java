@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
         TabLayout tabLayout = findViewById(R.id.tab_layout);
         ViewPager viewPager = findViewById(R.id.view_pager);
 
-        // 取得用戶
+        // 取得目前的使用者
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
         // 取得目前使用者的 Database 參考

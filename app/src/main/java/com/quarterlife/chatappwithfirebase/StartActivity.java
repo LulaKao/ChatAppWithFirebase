@@ -17,7 +17,7 @@ public class StartActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        // 取得用戶
+        // 取得目前的使用者
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
         // 確認用戶是否為 null

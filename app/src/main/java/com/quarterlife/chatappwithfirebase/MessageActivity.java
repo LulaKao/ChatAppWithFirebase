@@ -3,6 +3,8 @@ package com.quarterlife.chatappwithfirebase;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -18,8 +20,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.quarterlife.chatappwithfirebase.Adapter.MessageAdapter;
+import com.quarterlife.chatappwithfirebase.Model.Chat;
 import com.quarterlife.chatappwithfirebase.Model.User;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MessageActivity extends AppCompatActivity {
@@ -30,6 +36,9 @@ public class MessageActivity extends AppCompatActivity {
     private Intent intent;
     private ImageButton btn_send;
     private EditText text_send;
+    private MessageAdapter messageAdapter;
+    private List<Chat> mChat;
+    private RecyclerView recyclerView;
 
     //========= onCreate START =========//
     @Override
@@ -56,6 +65,14 @@ public class MessageActivity extends AppCompatActivity {
         username = findViewById(R.id.username);
         btn_send = findViewById(R.id.btn_send);
         text_send = findViewById(R.id.text_send);
+
+        // 設定 RecyclerView
+        recyclerView = findViewById(R.id.recycler_view);
+        recyclerView.setHasFixedSize(true);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
+        linearLayoutManager.setStackFromEnd(true); // 從底部開始向上展示，數據會逆序添加。頁面定位在布局底部。
+//        linearLayoutManager.setReverseLayout(true); // 將數據從布局的底部由下往上排列。上滑加載後面的數據。頁面定位在布局底部。
+        recyclerView.setLayoutManager(linearLayoutManager);
 
         // 取得 intent
         intent = getIntent();
@@ -98,6 +115,9 @@ public class MessageActivity extends AppCompatActivity {
                 } else { // 若有圖
                     Glide.with(MessageActivity.this).load(user.getImageURL()).into(profile_image); // 設置接收者的大頭照
                 }
+
+                // 讀取聊天紀錄
+                readMessages(firebaseUser.getUid(), userid, user.getImageURL());
             }
 
             @Override
@@ -122,4 +142,42 @@ public class MessageActivity extends AppCompatActivity {
         reference.child("Chats").push().setValue(hashMap);
     }
     //========= 發送訊息（發送者 / 接收者 / 訊息） END =========//
+
+    //========= 讀取訊息 START =========//
+    private void readMessages(final String my_id, final String user_id, final String image_url){
+        // 創建 ArrayList
+        mChat = new ArrayList<>();
+        // 取得聊天內容的 Database 參考
+        reference = FirebaseDatabase.getInstance().getReference("Chats");
+        // 讓聊天內容的 Database 參考 addValueEventListener
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                mChat.clear(); // 清空 ArrayList
+
+                // 跑迴圈取得聊天資訊
+                for(DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    Chat chat = snapshot.getValue(Chat.class); // 取得聊天資訊
+
+                    // 篩選只屬於目前使用者和該聊天對象的聊天紀錄
+                    if(chat.getReceiver().equals(my_id) && chat.getSender().equals(user_id) ||
+                            chat.getReceiver().equals(user_id) && chat.getSender().equals(my_id)){
+                        mChat.add(chat); // 符合條件的話就添加進 ArrayList
+                    }
+
+                    // 創建 MessageAdapter
+                    messageAdapter = new MessageAdapter(MessageActivity.this, mChat, image_url);
+
+                    // 綁定適配器到 RecyclerView 上
+                    recyclerView.setAdapter(messageAdapter);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+    //========= 讀取訊息 END =========//
 }
