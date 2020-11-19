@@ -23,6 +23,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.quarterlife.chatappwithfirebase.Fragments.ChatsFragment;
+import com.quarterlife.chatappwithfirebase.Fragments.ProfileFragment;
 import com.quarterlife.chatappwithfirebase.Fragments.UsersFragment;
 import com.quarterlife.chatappwithfirebase.Model.User;
 import java.util.ArrayList;
@@ -83,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
         // 新增 Fragment
         viewPagerAdapter.addFragment(new ChatsFragment(),"Chats");
         viewPagerAdapter.addFragment(new UsersFragment(),"Users");
+        viewPagerAdapter.addFragment(new ProfileFragment(),"Profile");
         // 綁定 ViewPagerAdapter 到 ViewPager 上
         viewPager.setAdapter(viewPagerAdapter);
         // 綁定 ViewPager 到 TabLayout 上
