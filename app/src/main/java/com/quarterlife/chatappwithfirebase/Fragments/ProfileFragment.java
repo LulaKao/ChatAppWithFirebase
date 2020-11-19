@@ -1,5 +1,6 @@
 package com.quarterlife.chatappwithfirebase.Fragments;
 
+import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -15,7 +16,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.quarterlife.chatappwithfirebase.MainActivity;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.StorageTask;
 import com.quarterlife.chatappwithfirebase.Model.User;
 import com.quarterlife.chatappwithfirebase.R;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -25,6 +28,10 @@ public class ProfileFragment extends Fragment {
     private TextView username;
     private DatabaseReference reference;
     private FirebaseUser firebaseUser;
+    private StorageReference storageReference;
+    private static final int IMAGE_REQUEST = 1;
+    private Uri imageUri;
+    private StorageTask uploadTask;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -34,6 +41,9 @@ public class ProfileFragment extends Fragment {
         // 宣告元件
         image_profile = view.findViewById(R.id.profile_image);
         username = view.findViewById(R.id.username);
+
+        // 取得上傳的存儲參考
+        storageReference = FirebaseStorage.getInstance().getReference("uploads");
 
         // 取得目前的使用者
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
