@@ -114,7 +114,7 @@ public class ChatsFragment extends Fragment {
                     }
                 }
 
-                userAdapter = new UserAdapter(getContext(), mUsers); // 創建 UserAdapter
+                userAdapter = new UserAdapter(getContext(), mUsers, true); // 創建 UserAdapter
                 recyclerView.setAdapter(userAdapter); // 綁定 userAdapter 到 recyclerView
             }
 

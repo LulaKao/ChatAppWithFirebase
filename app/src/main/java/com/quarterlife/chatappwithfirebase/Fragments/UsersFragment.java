@@ -87,7 +87,7 @@ public class UsersFragment extends Fragment {
                 }
 
                 // 創建 UserAdapter
-                userAdapter = new UserAdapter(getContext(), mUsers);
+                userAdapter = new UserAdapter(getContext(), mUsers, false);
 
                 // 綁定適配器並呈現在 recyclerView 上
                 recyclerView.setAdapter(userAdapter);

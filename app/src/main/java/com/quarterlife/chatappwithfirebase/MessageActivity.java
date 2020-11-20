@@ -180,4 +180,32 @@ public class MessageActivity extends AppCompatActivity {
         });
     }
     //========= 讀取訊息 END =========//
+
+    //========= 設置使用者狀態 START =========//
+    private void setStatus(String status){
+        // 取得現在使用者的 Database 參考
+        reference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
+
+        HashMap<String, Object> hashMap = new HashMap<>(); // 創建 HashMap
+        hashMap.put("status", status); // 放置 [使用者的狀態] 到 HashMap 裡
+
+        reference.updateChildren(hashMap); // 把 hashMap 的值設定給目前使用者的 Database 參考
+    }
+    //========= 設置使用者狀態 END =========//
+
+    //========= onResume START =========//
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setStatus("online");
+    }
+    //========= onResume END =========//
+
+    //========= onPause START =========//
+    @Override
+    protected void onPause() {
+        super.onPause();
+        setStatus("offline");
+    }
+    //========= onPause END =========//
 }
