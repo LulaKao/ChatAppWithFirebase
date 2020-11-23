@@ -56,6 +56,12 @@ public class MessageActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+//                startActivity(new Intent(getApplicationContext(), MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+
+                /*  Intent.FLAG_ACTIVITY_CLEAR_TOP：
+                    銷毀目標 Activity 和它之上的所有 Activity，
+                    並重新創建目標 Activity   */
+
                 finish(); // 結束此頁
             }
         });

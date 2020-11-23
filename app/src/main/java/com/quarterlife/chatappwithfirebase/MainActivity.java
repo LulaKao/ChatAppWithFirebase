@@ -106,8 +106,15 @@ public class MainActivity extends AppCompatActivity {
             // 點選登出按鈕
             case R.id.logout:
                 FirebaseAuth.getInstance().signOut(); // 在 Firebase 登出
+//                startActivity(new Intent(getApplicationContext(), StartActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)); // 跳到 StartActivity
+
+                /*  Intent.FLAG_ACTIVITY_CLEAR_TOP：
+                    銷毀目標 Activity 和它之上的所有 Activity，
+                    並重新創建目標 Activity   */
+
                 startActivity(new Intent(MainActivity.this, StartActivity.class)); // 跳到 StartActivity
                 finish(); // 結束此頁
+
                 return true;
         }
 
