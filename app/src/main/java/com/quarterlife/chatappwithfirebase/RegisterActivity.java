@@ -87,6 +87,7 @@ public class RegisterActivity extends AppCompatActivity {
                             hashMap.put("username", username); // 放置 user name 到 HashMap 裡
                             hashMap.put("imageURL", "default"); // 放置 image URL 到 HashMap 裡
                             hashMap.put("status", "offline"); // 放置 status 到 HashMap 裡
+                            hashMap.put("search", username.toLowerCase()); // 放置 search 到 HashMap 裡
 
                             // 設置值到 Database 的參考裡，並新增完成的監聽事件
                             reference.setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
