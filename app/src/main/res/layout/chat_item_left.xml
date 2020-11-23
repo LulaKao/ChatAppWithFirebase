@@ -22,4 +22,14 @@
         android:textSize="18sp"
         android:padding="8dp"
         android:background="@drawable/background_left" />
+
+    <TextView
+        android:id="@+id/text_seen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="已讀"
+        android:visibility="gone"
+        android:layout_toRightOf="@+id/show_message"
+        android:layout_alignBottom="@+id/show_message"
+        android:layout_marginLeft="5dp"/>
 </RelativeLayout>

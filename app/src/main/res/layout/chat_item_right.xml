@@ -27,6 +27,15 @@
             android:textColor="@android:color/white"
             android:padding="8dp" />
 
+        <TextView
+            android:id="@+id/text_seen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="已讀"
+            android:layout_toLeftOf="@+id/show_message"
+            android:layout_alignBottom="@+id/show_message"
+            android:layout_marginRight="5dp"/>
+
     </RelativeLayout>
 
 </RelativeLayout>

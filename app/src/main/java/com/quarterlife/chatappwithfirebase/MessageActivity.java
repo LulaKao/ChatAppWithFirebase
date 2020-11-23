@@ -39,6 +39,7 @@ public class MessageActivity extends AppCompatActivity {
     private MessageAdapter messageAdapter;
     private List<Chat> mChat;
     private RecyclerView recyclerView;
+    private ValueEventListener seenListener;
 
     //========= onCreate START =========//
     @Override
@@ -134,6 +135,35 @@ public class MessageActivity extends AppCompatActivity {
     }
     //========= onCreate END =========//
 
+    //========= 訊息是否已讀 START =========//
+    private void seenMessage(final String user_id){
+        // 取得聊天內容的 Database 參考
+        reference = FirebaseDatabase.getInstance().getReference("Chats");
+        // add ValueEventListener
+        seenListener = reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                // 跑迴圈取得聊天資訊
+                for(DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    Chat chat = snapshot.getValue(Chat.class); // 取得聊天資訊
+
+                    // 若接收者是使用者自己，且發送者是？ --> 這段要看懂在幹嘛 + 寫註解
+                    if(chat.getReceiver().equals(firebaseUser.getUid()) && chat.getSender().equals(user_id)){
+                        HashMap<String, Object> hashMap = new HashMap<>();
+                        hashMap.put("is_seen", true);
+                        snapshot.getRef().updateChildren(hashMap);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+    //========= 訊息是否已讀 END =========//
+
     //========= 發送訊息（發送者 / 接收者 / 訊息） START =========//
     private void sendMessage(String sender, String receiver, String message){
         // 取得 Database 參考
@@ -143,6 +173,7 @@ public class MessageActivity extends AppCompatActivity {
         hashMap.put("sender", sender); // 放置 [發送者] 到 HashMap 裡
         hashMap.put("receiver", receiver); // 放置 [接收者] 到 HashMap 裡
         hashMap.put("message", message); // 放置 [訊息] 到 HashMap 裡
+        hashMap.put("is_seen", false); // 放置 [訊息讀取狀態] 到 HashMap 裡
 
         // 把 hashMap 的值設定給 Chats 的 Database 參考
         reference.child("Chats").push().setValue(hashMap);
@@ -211,6 +242,7 @@ public class MessageActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        reference.removeEventListener(seenListener); // 移除 seenListener --> onResume 時不用恢復嗎？
         setStatus("offline");
     }
     //========= onPause END =========//
