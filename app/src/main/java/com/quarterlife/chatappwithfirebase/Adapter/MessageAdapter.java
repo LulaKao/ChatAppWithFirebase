@@ -52,6 +52,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         } else { // 若有圖
             Glide.with(mContext).load(imageUrl).into(holder.profile_image); // 設置聊天對象的大頭照
         }
+
+        // 取得訊息是否已讀
+        if(chat.isIs_seen()){ // 若已讀
+            holder.txt_seen.setText("已讀"); // 顯示已讀
+        } else { // 若未讀
+            holder.txt_seen.setText(""); // 不顯示已讀
+        }
     }
 
     @Override
@@ -62,12 +69,14 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     public class ViewHolder extends RecyclerView.ViewHolder{
         public TextView show_message;
         public ImageView profile_image;
+        public TextView txt_seen;
 
         public ViewHolder(View itemView){
             super(itemView);
 
             show_message = itemView.findViewById(R.id.show_message);
             profile_image = itemView.findViewById(R.id.profile_image);
+            txt_seen = itemView.findViewById(R.id.txt_seen);
         }
     }
 

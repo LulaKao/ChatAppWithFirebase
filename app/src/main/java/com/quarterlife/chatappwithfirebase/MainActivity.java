@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
                 if(user.getImageURL().equals("default")){ // 如果是 default
                     profile_image.setImageResource(R.mipmap.ic_launcher);
                 } else { // 如果有 image
-                    Glide.with(MainActivity.this).load(user.getImageURL()).into(profile_image); // 設置 image 到 profile_image 上
+                    Glide.with(getApplicationContext()).load(user.getImageURL()).into(profile_image); // 設置 image 到 profile_image 上
                 }
             }
 

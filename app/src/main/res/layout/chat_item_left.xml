@@ -24,12 +24,13 @@
         android:background="@drawable/background_left" />
 
     <TextView
-        android:id="@+id/text_seen"
+        android:id="@+id/txt_seen"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="已讀"
         android:visibility="gone"
         android:layout_toRightOf="@+id/show_message"
         android:layout_alignBottom="@+id/show_message"
+        android:textSize="12sp"
         android:layout_marginLeft="5dp"/>
 </RelativeLayout>

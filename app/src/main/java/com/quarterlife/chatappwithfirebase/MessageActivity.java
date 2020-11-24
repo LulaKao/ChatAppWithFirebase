@@ -40,6 +40,7 @@ public class MessageActivity extends AppCompatActivity {
     private List<Chat> mChat;
     private RecyclerView recyclerView;
     private ValueEventListener seenListener;
+    private String userid;
 
     //========= onCreate START =========//
     @Override
@@ -85,7 +86,7 @@ public class MessageActivity extends AppCompatActivity {
         intent = getIntent();
 
         // 取得接收者的 id
-        final String userid = intent.getStringExtra("userid");
+        userid = intent.getStringExtra("userid");
 
         // 取得目前的使用者
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -120,7 +121,7 @@ public class MessageActivity extends AppCompatActivity {
                 if(user.getImageURL().equals("default")){ // 若沒有圖
                     profile_image.setImageResource(R.mipmap.ic_launcher); // 設置預設圖
                 } else { // 若有圖
-                    Glide.with(MessageActivity.this).load(user.getImageURL()).into(profile_image); // 設置接收者的大頭照
+                    Glide.with(getApplicationContext()).load(user.getImageURL()).into(profile_image); // 設置接收者的大頭照
                 }
 
                 // 讀取聊天紀錄
@@ -132,10 +133,12 @@ public class MessageActivity extends AppCompatActivity {
 
             }
         });
+
+        seenMessage(userid); // 設置已讀訊息
     }
     //========= onCreate END =========//
 
-    //========= 訊息是否已讀 START =========//
+    //========= 設置已讀訊息 START =========//
     private void seenMessage(final String user_id){
         // 取得聊天內容的 Database 參考
         reference = FirebaseDatabase.getInstance().getReference("Chats");
@@ -147,11 +150,11 @@ public class MessageActivity extends AppCompatActivity {
                 for(DataSnapshot snapshot : dataSnapshot.getChildren()){
                     Chat chat = snapshot.getValue(Chat.class); // 取得聊天資訊
 
-                    // 若接收者是使用者自己，且發送者是？ --> 這段要看懂在幹嘛 + 寫註解
+                    // 若接收者是使用者自己，且發送者是點選的聊天對象 --> 確認我（使用者自己）是否有看到訊息（已開啟 MessageActivity 代表已讀）
                     if(chat.getReceiver().equals(firebaseUser.getUid()) && chat.getSender().equals(user_id)){
-                        HashMap<String, Object> hashMap = new HashMap<>();
-                        hashMap.put("is_seen", true);
-                        snapshot.getRef().updateChildren(hashMap);
+                        HashMap<String, Object> hashMap = new HashMap<>(); // 創建 HashMap
+                        hashMap.put("is_seen", true); // 放置 [已讀] 到 HashMap 裡
+                        snapshot.getRef().updateChildren(hashMap); // 把 hashMap 的值設定給各個項目的參考
                     }
                 }
             }
@@ -162,7 +165,7 @@ public class MessageActivity extends AppCompatActivity {
             }
         });
     }
-    //========= 訊息是否已讀 END =========//
+    //========= 設置已讀訊息 END =========//
 
     //========= 發送訊息（發送者 / 接收者 / 訊息） START =========//
     private void sendMessage(String sender, String receiver, String message){
@@ -234,7 +237,7 @@ public class MessageActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        setStatus("online");
+        setStatus("online"); // 設置使用者狀態為上線
     }
     //========= onResume END =========//
 
@@ -243,7 +246,7 @@ public class MessageActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         reference.removeEventListener(seenListener); // 移除 seenListener --> onResume 時不用恢復嗎？
-        setStatus("offline");
+        setStatus("offline"); // 設置使用者狀態為下線
     }
     //========= onPause END =========//
 }

@@ -28,10 +28,11 @@
             android:padding="8dp" />
 
         <TextView
-            android:id="@+id/text_seen"
+            android:id="@+id/txt_seen"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="已讀"
+            android:textSize="12sp"
             android:layout_toLeftOf="@+id/show_message"
             android:layout_alignBottom="@+id/show_message"
             android:layout_marginRight="5dp"/>
