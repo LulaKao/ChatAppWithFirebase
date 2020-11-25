@@ -11,15 +11,31 @@
         android:layout_height="50dp"
         android:src="@mipmap/ic_launcher" />
 
-    <TextView
-        android:id="@+id/username"
+    <LinearLayout
+        android:id="@+id/userdata"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="username"
-        android:textSize="18sp"
-        android:layout_toRightOf="@id/profile_image"
         android:layout_marginLeft="10dp"
-        android:layout_centerVertical="true"/>
+        android:layout_toRightOf="@+id/profile_image"
+        android:layout_centerVertical="true"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="username"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/last_msg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorPrimaryDark"
+            android:maxLines="1"
+            android:layout_below="@+id/username"/>
+
+    </LinearLayout>
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/img_on"
@@ -27,8 +43,8 @@
         android:layout_height="15dp"
         android:layout_toRightOf="@id/profile_image"
         android:layout_marginLeft="-15dp"
-        android:layout_below="@+id/username"
-        android:layout_marginTop="10dp"
+        android:layout_below="@id/userdata"
+        android:layout_marginTop="-10dp"
         app:civ_border_width="8dp"
         app:civ_border_color="#05df29"
         android:visibility="gone"
@@ -40,8 +56,8 @@
         android:layout_height="15dp"
         android:layout_toRightOf="@id/profile_image"
         android:layout_marginLeft="-15dp"
-        android:layout_below="@+id/username"
-        android:layout_marginTop="10dp"
+        android:layout_below="@id/userdata"
+        android:layout_marginTop="-10dp"
         app:civ_border_width="8dp"
         app:civ_border_color="#bfbfbf"
         android:visibility="gone"

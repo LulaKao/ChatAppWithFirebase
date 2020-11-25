@@ -10,7 +10,15 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.quarterlife.chatappwithfirebase.MessageActivity;
+import com.quarterlife.chatappwithfirebase.Model.Chat;
 import com.quarterlife.chatappwithfirebase.Model.User;
 import com.quarterlife.chatappwithfirebase.R;
 import java.util.List;
@@ -19,6 +27,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     private Context mContext;
     private List<User> mUsers;
     private boolean isChat;
+    private String theLastMessage;
 
     public UserAdapter(Context mContext, List<User> mUsers, boolean isChat){
         this.mContext = mContext;
@@ -45,7 +54,9 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
             Glide.with(mContext).load(user.getImageURL()).into(holder.profile_image); // 設置使用者的大頭照
         }
 
-        if(isChat){ // 如果是 ChatsFragment --> 顯示用戶是否上線
+        if(isChat){ // 如果是 ChatsFragment --> 顯示用戶是否上線 + 顯示最後一筆對話紀錄
+
+            // 顯示用戶是否上線
             if(user.getStatus().equals("online")){ // 如果使用者在線上
                 holder.img_on.setVisibility(View.VISIBLE);
                 holder.img_off.setVisibility(View.GONE);
@@ -53,9 +64,14 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
                 holder.img_on.setVisibility(View.GONE);
                 holder.img_off.setVisibility(View.VISIBLE);
             }
-        } else { // 如果是 UsersFragment --> 不用顯示用戶是否上線
+
+            // 顯示最後一筆對話紀錄
+            lastMessage(user.getId(), holder.last_msg);
+
+        } else { // 如果是 UsersFragment --> 不用顯示用戶是否上線 + 不用顯示最後一筆對話紀錄
             holder.img_on.setVisibility(View.GONE);
             holder.img_off.setVisibility(View.GONE);
+            holder.last_msg.setVisibility(View.GONE);
         }
 
         // 設置 itemView 的 OnClickListener
@@ -76,7 +92,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder{
-        public TextView username;
+        public TextView username, last_msg;
         public ImageView profile_image, img_on, img_off;
 
         public ViewHolder(View itemView){
@@ -86,6 +102,45 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
             profile_image = itemView.findViewById(R.id.profile_image);
             img_on = itemView.findViewById(R.id.img_on);
             img_off = itemView.findViewById(R.id.img_off);
+            last_msg = itemView.findViewById(R.id.last_msg);
         }
     }
+
+    //========= 顯示最後一筆對話紀錄 START =========//
+    private void lastMessage(final String userid, final TextView last_msg){
+        theLastMessage = "default"; // 預設 theLastMessage 為 default
+        final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser(); // 取得目前的使用者
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Chats"); // 取得聊天紀錄的資料庫參考
+
+        // 讓聊天紀錄的資料庫參考新增 ValueEventListener
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                // 跑迴圈取得聊天資料
+                for(DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    Chat chat = snapshot.getValue(Chat.class); // 取得聊天資訊
+
+                    // 如果有對話紀錄
+                    if(chat.getReceiver().equals(firebaseUser.getUid()) && chat.getSender().equals(userid) ||
+                            chat.getReceiver().equals(userid) && chat.getSender().equals(firebaseUser.getUid())){
+                        theLastMessage = chat.getMessage(); // 把聊天內容設置到 theLastMessage 上
+                    }
+                }
+
+                if(theLastMessage.equals("default")){ // 如果沒有最後一筆聊天紀錄
+                    last_msg.setText("No Message"); // 顯示 No Message
+                } else { // 如果有最後一筆聊天紀錄
+                    last_msg.setText(theLastMessage); // 顯示最後一筆聊天紀錄
+                }
+
+                theLastMessage = "default"; // 重設 theLastMessage 為 default
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+    //========= 顯示最後一筆對話紀錄 END =========//
 }
