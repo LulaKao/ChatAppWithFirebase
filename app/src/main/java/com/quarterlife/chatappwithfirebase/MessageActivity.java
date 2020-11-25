@@ -21,8 +21,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.quarterlife.chatappwithfirebase.Adapter.MessageAdapter;
+import com.quarterlife.chatappwithfirebase.Fragments.APIService;
 import com.quarterlife.chatappwithfirebase.Model.Chat;
 import com.quarterlife.chatappwithfirebase.Model.User;
+import com.quarterlife.chatappwithfirebase.Notifications.Client;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +43,7 @@ public class MessageActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private ValueEventListener seenListener;
     private String userid;
+    private APIService apiService;
 
     //========= onCreate START =========//
     @Override
@@ -67,6 +70,9 @@ public class MessageActivity extends AppCompatActivity {
                 finish(); // 結束此頁
             }
         });
+
+        //
+        apiService = Client.getClient("https://fcm.googleapis.com/").create(APIService.class);
 
         // 宣告元件
         profile_image = findViewById(R.id.profile_image);

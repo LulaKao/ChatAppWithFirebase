@@ -15,9 +15,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.quarterlife.chatappwithfirebase.Adapter.UserAdapter;
 import com.quarterlife.chatappwithfirebase.Model.Chatlist;
 import com.quarterlife.chatappwithfirebase.Model.User;
+import com.quarterlife.chatappwithfirebase.Notifications.Token;
 import com.quarterlife.chatappwithfirebase.R;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,9 +73,23 @@ public class ChatsFragment extends Fragment {
             }
         });
 
+        // 更新 token
+        updateToken(FirebaseInstanceId.getInstance().getToken());
+
         return view;
     }
     //========= onCreateView END =========//
+
+    //========= 更新 token START =========//
+    private void updateToken(String token){
+        // 取得 Tokens 的 database 參考
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Tokens");
+        // 創建 Token
+        Token token1 = new Token(token);
+        // 設置 token 的值到 Tokens > firebaseUser.getUid() 裡
+        reference.child(firebaseUser.getUid()).setValue(token1);
+    }
+    //========= 更新 token END =========//
 
     //========= 設置 chatList START =========//
     private void chatList(){
