@@ -1,9 +1,7 @@
 package com.quarterlife.chatappwithfirebase.Fragments;
 
-import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,19 +16,17 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.quarterlife.chatappwithfirebase.Adapter.UserAdapter;
-import com.quarterlife.chatappwithfirebase.Model.Chat;
+import com.quarterlife.chatappwithfirebase.Model.Chatlist;
 import com.quarterlife.chatappwithfirebase.Model.User;
 import com.quarterlife.chatappwithfirebase.R;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
 
 public class ChatsFragment extends Fragment {
     private RecyclerView recyclerView;
     private UserAdapter userAdapter;
     private List<User> mUsers;
-    private List<Object> usersList;
+    private List<Chatlist> usersList;
     private FirebaseUser firebaseUser;
     private DatabaseReference reference;
 
@@ -49,35 +45,24 @@ public class ChatsFragment extends Fragment {
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
         // 創建 usersList
-        usersList = new ArrayList<Object>();
+        usersList = new ArrayList<>();
 
-        // 取得聊天內容的 Database 參考
-        reference = FirebaseDatabase.getInstance().getReference("Chats");
+        // 取得目前使用者的 Chatlist 參考
+        reference = FirebaseDatabase.getInstance().getReference("Chatlist").child(firebaseUser.getUid());
 
-        // 聊天內容的 Database 參考 addValueEventListener
+        // 為目前使用者的 Chatlist 參考增添 ValueEventListener
         reference.addValueEventListener(new ValueEventListener() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                usersList.clear(); // 清空 List<String>
+                usersList.clear(); // 清除 ArrayList
 
-                // 跑迴圈取得聊天資訊
+                // 跑迴圈取得 Chatlist 的資訊
                 for(DataSnapshot snapshot : dataSnapshot.getChildren()){
-                    Chat chat = snapshot.getValue(Chat.class); // 取得聊天資訊
-
-                    // 把跟使用者有聊天過的對象都加到 usersList 裡
-                    if(chat.getSender().equals(firebaseUser.getUid())){ // 如果發送者是使用者自己
-                        usersList.add(chat.getReceiver()); // 把接收者加到 usersList 裡
-                    }
-                    if(chat.getReceiver().equals(firebaseUser.getUid())){ // 如果接收者是使用者自己
-                        usersList.add(chat.getSender()); // 把發送者加到 usersList 裡
-                    }
+                    Chatlist chatlist = snapshot.getValue(Chatlist.class); // 取得 Chatlist 的資訊
+                    usersList.add(chatlist); // 添加 chatlist 的資訊到 usersList 裡
                 }
 
-                // usersList 排除重複的對象
-                usersList = usersList.stream().distinct().collect(Collectors.toList());
-                // 讀取聊天對象
-                readChats();
+                chatList(); // 設置 chatList
             }
 
             @Override
@@ -90,32 +75,34 @@ public class ChatsFragment extends Fragment {
     }
     //========= onCreateView END =========//
 
-    //========= 讀取聊天對象 START =========//
-    private void readChats() {
-        mUsers = new CopyOnWriteArrayList<>(); // 創建 ArrayList
-
-        // 取得所有使用者的 Database 參考
+    //========= 設置 chatList START =========//
+    private void chatList(){
+        // 創建 ArrayList
+        mUsers = new ArrayList<>();
+        // 取得使用者的資料庫參考
         reference = FirebaseDatabase.getInstance().getReference("Users");
-
-        // 新增 Database 的 ValueEventListener
+        // 為使用者的資料庫參考添加 ValueEventListener
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                mUsers.clear(); // 清空 List<User>
+                mUsers.clear(); // 清空 ArrayList
 
-                // 跑迴圈取得使用者資訊
+                // 跑迴圈取得使用者資料
                 for(DataSnapshot snapshot : dataSnapshot.getChildren()){
-                    User user = snapshot.getValue(User.class); // 取得使用者資訊
+                    User user = snapshot.getValue(User.class); // 取得使用者的資料
 
-                    for(Object id : usersList){ // 跑迴圈取得 usersList
-                        if(user.getId().equals(id)){ // 若現在取得的使用者資訊是有和目前使用者聊天的對象
-                            mUsers.add(user); // 增加該使用者到 List<User>
+                    // 跑迴圈取得 Chatlist 的資料
+                    for(Chatlist chatlist : usersList){
+                        if(user.getId().equals(chatlist.getId())){ // 如果 user id 和 chatlist id 一樣
+                            mUsers.add(user); // 把使用者資料加進 ArrayList
                         }
                     }
                 }
 
-                userAdapter = new UserAdapter(getContext(), mUsers, true); // 創建 UserAdapter
-                recyclerView.setAdapter(userAdapter); // 綁定 userAdapter 到 recyclerView
+                // 創建 UserAdapter
+                userAdapter = new UserAdapter(getContext(), mUsers, true);
+                // 讓 recyclerView 綁定 UserAdapter
+                recyclerView.setAdapter(userAdapter);
             }
 
             @Override
@@ -124,5 +111,5 @@ public class ChatsFragment extends Fragment {
             }
         });
     }
-    //========= 讀取聊天對象 END =========//
+    //========= 設置 chatList END =========//
 }

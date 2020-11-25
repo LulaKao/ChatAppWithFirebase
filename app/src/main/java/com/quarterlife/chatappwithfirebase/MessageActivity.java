@@ -180,6 +180,28 @@ public class MessageActivity extends AppCompatActivity {
 
         // 把 hashMap 的值設定給 Chats 的 Database 參考
         reference.child("Chats").push().setValue(hashMap);
+
+        //===================== 把聊天對象設置到 Chatlist 裡 START =====================//
+        // 取得 Chatlist > firebaseUser.getUid() > userid 的參考
+        final DatabaseReference chatRef = FirebaseDatabase.getInstance().getReference("Chatlist")
+                .child(firebaseUser.getUid())
+                .child(userid);
+
+        // 為單一事件添加監聽器
+        chatRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(!dataSnapshot.exists()){ // 如果值不存在
+                    chatRef.child("id").setValue(userid); // 設置聊天對象的 id
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+        //===================== 把聊天對象設置到 Chatlist 裡 END =====================//
     }
     //========= 發送訊息（發送者 / 接收者 / 訊息） END =========//
 
