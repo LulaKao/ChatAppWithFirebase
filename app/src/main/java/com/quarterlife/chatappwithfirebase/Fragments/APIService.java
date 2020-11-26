@@ -7,7 +7,7 @@ import retrofit2.http.Body;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
 
-public abstract class APIService {
+public interface APIService {
     @Headers(
             {
                     "Content-Type:application/json",
@@ -16,5 +16,5 @@ public abstract class APIService {
     )
 
     @POST("fcm/send")
-    abstract Call<MyResponse> sendNotification(@Body Sender body);
+    Call<MyResponse> sendNotification(@Body Sender body);
 }

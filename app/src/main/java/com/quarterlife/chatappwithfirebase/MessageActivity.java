@@ -19,16 +19,24 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.quarterlife.chatappwithfirebase.Adapter.MessageAdapter;
 import com.quarterlife.chatappwithfirebase.Fragments.APIService;
 import com.quarterlife.chatappwithfirebase.Model.Chat;
 import com.quarterlife.chatappwithfirebase.Model.User;
 import com.quarterlife.chatappwithfirebase.Notifications.Client;
+import com.quarterlife.chatappwithfirebase.Notifications.Data;
+import com.quarterlife.chatappwithfirebase.Notifications.MyResponse;
+import com.quarterlife.chatappwithfirebase.Notifications.Sender;
+import com.quarterlife.chatappwithfirebase.Notifications.Token;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import de.hdodenhof.circleimageview.CircleImageView;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MessageActivity extends AppCompatActivity {
     private CircleImageView profile_image;
@@ -44,6 +52,7 @@ public class MessageActivity extends AppCompatActivity {
     private ValueEventListener seenListener;
     private String userid;
     private APIService apiService;
+    private boolean notify = false;
 
     //========= onCreate START =========//
     @Override
@@ -71,7 +80,7 @@ public class MessageActivity extends AppCompatActivity {
             }
         });
 
-        //
+        // 取得 API Service
         apiService = Client.getClient("https://fcm.googleapis.com/").create(APIService.class);
 
         // 宣告元件
@@ -101,6 +110,7 @@ public class MessageActivity extends AppCompatActivity {
         btn_send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                notify = true; // 設置 notify = true
                 String msg = text_send.getText().toString(); // 取得使用者輸入的文字
 
                 if(!msg.equals("")){ // 如果有輸入東西
@@ -174,7 +184,7 @@ public class MessageActivity extends AppCompatActivity {
     //========= 設置已讀訊息 END =========//
 
     //========= 發送訊息（發送者 / 接收者 / 訊息） START =========//
-    private void sendMessage(String sender, String receiver, String message){
+    private void sendMessage(String sender, final String receiver, String message){
         // 取得 Database 參考
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
 
@@ -208,8 +218,76 @@ public class MessageActivity extends AppCompatActivity {
             }
         });
         //===================== 把聊天對象設置到 Chatlist 裡 END =====================//
+
+        //========= 發送 Notification START =========//
+        // 把 message 的值給 msg
+        final String msg = message;
+        // 取得目前使用者的資料庫參考
+        reference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
+        // 為目前使用者的資料庫參考增加 ValueEventListener
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                User user = dataSnapshot.getValue(User.class); // 取得目前使用者的資訊
+                if(notify) sendNotification(receiver, user.getUsername(), msg); // 若 notify = true --> 發送通知
+                notify = false; // 設置 notify = false
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+        //========= 發送 Notification END =========//
     }
     //========= 發送訊息（發送者 / 接收者 / 訊息） END =========//
+
+    //========= 發送通知（接收者 / 目前使用者的名稱 / 訊息） START =========//
+    private void sendNotification(String receiver, final String username, final String message) {
+        // 取得 Tokens 的資料庫參考
+        DatabaseReference tokens = FirebaseDatabase.getInstance().getReference("Tokens");
+        // 查詢接收者的 token
+        Query query = tokens.orderByKey().equalTo(receiver);
+        // 查詢接收者的 token addValueEventListener
+        query.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                // 跑迴圈取得 Tokens 的資料
+                for(DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    // 取得 Token 的資料
+                    Token token = snapshot.getValue(Token.class);
+                    // 創建 Data
+                    Data data = new Data(firebaseUser.getUid(), R.mipmap.ic_launcher,
+                            username + ": " + message, "New Message", userid);
+                    // 創建 Sender
+                    Sender sender = new Sender(data, token.getToken());
+                    // 讓 APIService 發送通知
+                    apiService.sendNotification(sender)
+                            .enqueue(new Callback<MyResponse>() {
+                                @Override
+                                public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
+                                    if(response.code() == 200){ // 若 response code 是 200
+                                        if(response.body().success != 1){ // 若 success 不是 1
+                                            Toast.makeText(MessageActivity.this, "Failed!", Toast.LENGTH_SHORT).show(); // 顯示失敗的 Toast
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<MyResponse> call, Throwable t) {
+
+                                }
+                            });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+    //========= 發送通知 END =========//
 
     //========= 讀取訊息 START =========//
     private void readMessages(final String my_id, final String user_id, final String image_url){

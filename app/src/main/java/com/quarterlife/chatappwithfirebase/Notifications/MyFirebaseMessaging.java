@@ -72,6 +72,7 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
         // 使用 RingtoneManager 獲取 Notification 的預設提示音
         Uri defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
+        // 創建 NotificationCompat
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                 .setSmallIcon(Integer.parseInt(icon)) // 設置 icon
                 .setContentTitle(title) // 設置 title
@@ -80,13 +81,15 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
                 .setSound(defaultSound) // 設置提示音
                 .setContentIntent(pendingIntent); // 設置意圖
 
+        // 取得 NOTIFICATION_SERVICE
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         int i = 0;
-        if(j > 0){
-            i = j;
+        if(j > 0){ // 若 j > 0
+            i = j; // 把 j 的值設定給 i
         }
 
+        // 使用 i 為編號發出通知，當已有編號 i 的通知時就會更新其內容
         manager.notify(i, builder.build());
     }
     //========= 發送通知 END =========//

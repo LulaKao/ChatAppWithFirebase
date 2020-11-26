@@ -7,7 +7,7 @@ public class Data {
     public Data() {
     }
 
-    public Data(String user, String body, String title, String sent, int icon) {
+    public Data(String user, int icon, String body, String title, String sent) {
         this.user = user;
         this.body = body;
         this.title = title;
