@@ -37,15 +37,15 @@ public class OreoNotification extends ContextWrapper {
          *  IMPORTANCE_DEFAULT：開啟通知，不會彈出，發出提示音，狀態欄中顯示
          *  IMPORTANCE_HIGH：開啟通知，會彈出，發出提示音，狀態欄中顯示    */
 
-        channel.canShowBadge(); // 桌面 launcher 的消息角標
+//        channel.canShowBadge(); // 桌面 launcher 的消息角標
         channel.enableLights(true); // 是否在桌面 icon 右上角展示小紅點
-        channel.setLightColor(Color.RED); // 閃光燈的燈光顏色
+//        channel.setLightColor(Color.RED); // 閃光燈的燈光顏色
         channel.enableVibration(true); // 是否允許震動
-        channel.setShowBadge(false); // 是否在久按桌面圖標時顯示此渠道的通知
+//        channel.setShowBadge(false); // 是否在久按桌面圖標時顯示此渠道的通知
         channel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE); // 鎖屏顯示通知
-        channel.getAudioAttributes(); // 獲取系統通知鈴聲的配置
-        channel.setBypassDnd(true); // 是否繞過請勿打擾模式
-        channel.canBypassDnd(); // 設置可繞過請勿打擾的模式
+//        channel.getAudioAttributes(); // 獲取系統通知鈴聲的配置
+//        channel.setBypassDnd(true); // 是否繞過請勿打擾模式
+//        channel.canBypassDnd(); // 設置可繞過請勿打擾的模式
 
         getManager().createNotificationChannel(channel);
     }
