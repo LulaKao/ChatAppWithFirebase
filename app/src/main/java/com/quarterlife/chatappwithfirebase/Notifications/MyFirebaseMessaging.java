@@ -1,11 +1,13 @@
 package com.quarterlife.chatappwithfirebase.Notifications;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import androidx.core.app.NotificationCompat;
 import com.google.firebase.auth.FirebaseAuth;
@@ -15,6 +17,8 @@ import com.google.firebase.messaging.RemoteMessage;
 import com.quarterlife.chatappwithfirebase.MessageActivity;
 
 public class MyFirebaseMessaging extends FirebaseMessagingService {
+
+    //========= onMessageReceived START =========//
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
@@ -29,6 +33,7 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
             sendNotification(remoteMessage); // 發送通知
         }
     }
+    //========= onMessageReceived END =========//
 
     //========= 發送通知 START =========//
     private void sendNotification(RemoteMessage remoteMessage) {
@@ -72,25 +77,39 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
         // 使用 RingtoneManager 獲取 Notification 的預設提示音
         Uri defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
-        // 創建 NotificationCompat
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
-                .setSmallIcon(Integer.parseInt(icon)) // 設置 icon
-                .setContentTitle(title) // 設置 title
-                .setContentText(body) // 設置訊息
-                .setAutoCancel(true) // 點擊通知後，通知自動消失
-                .setSound(defaultSound) // 設置提示音
-                .setContentIntent(pendingIntent); // 設置意圖
+        // 宣告變數
+        Notification.Builder builder_O = null;
+        OreoNotification oreoNotification = null;
+        NotificationCompat.Builder builder = null;
+        NotificationManager manager = null;
 
-        // 取得 NOTIFICATION_SERVICE
-        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){ // 若版本是 8.0 以上
+            oreoNotification = new OreoNotification(this); // 創建 OreoNotification
+            builder_O = oreoNotification.getOreoNotification(title, body, pendingIntent, defaultSound, icon); // 創建 Notification.Builder
+
+        } else { // 若版本是 8.0 以下
+            builder = new NotificationCompat.Builder(this) // 創建 NotificationCompat
+                    .setSmallIcon(Integer.parseInt(icon)) // 設置 icon
+                    .setContentTitle(title) // 設置 title
+                    .setContentText(body) // 設置訊息
+                    .setAutoCancel(true) // 點擊通知後，通知自動消失
+                    .setSound(defaultSound) // 設置提示音
+                    .setContentIntent(pendingIntent); // 設置意圖
+
+            manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE); // 取得 NOTIFICATION_SERVICE
+        }
 
         int i = 0;
         if(j > 0){ // 若 j > 0
             i = j; // 把 j 的值設定給 i
         }
 
-        // 使用 i 為編號發出通知，當已有編號 i 的通知時就會更新其內容
-        manager.notify(i, builder.build());
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){ // 若版本是 8.0 以上
+            oreoNotification.getManager().notify(i, builder_O.build()); // 使用 i 為編號發出通知，當已有編號 i 的通知時就會更新其內容
+
+        } else { // 若版本是 8.0 以下
+            manager.notify(i, builder.build()); // 使用 i 為編號發出通知，當已有編號 i 的通知時就會更新其內容
+        }
     }
     //========= 發送通知 END =========//
 }
