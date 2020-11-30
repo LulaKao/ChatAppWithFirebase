@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
@@ -26,11 +27,22 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
         // 取得接收者 --> 是嗎？
         String sent = remoteMessage.getData().get("sent");
         System.out.println("=== ASG 看一下 sent 是什麼 = " + sent);
+
+        // 取得用戶
+        String user = remoteMessage.getData().get("user");
+        System.out.println("=== ASG 看一下 user 是什麼 = " + user);
+
+        // 取得 SharedPreferences 中，目前正在聊天的對象
+        SharedPreferences preferences = getSharedPreferences("PREFS", MODE_PRIVATE);
+        String currentUser = preferences.getString("currentUser", "none");
+
         // 取得目前的使用者
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        // 如果目前的使用者不為 null，且接收者和目前使用者的 id 一樣 --> 是嗎？
+        // 如果目前的使用者不為 null，且接收者和目前使用者的 id 一樣
         if(firebaseUser != null && sent.equals(firebaseUser.getUid())){
-            sendNotification(remoteMessage); // 發送通知
+            if(!currentUser.equals(user)){ // 若目前正在聊天的對象跟取得的用戶不一樣
+                sendNotification(remoteMessage); // 發送通知
+            }
         }
     }
     //========= onMessageReceived END =========//

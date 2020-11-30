@@ -6,6 +6,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -327,6 +328,14 @@ public class MessageActivity extends AppCompatActivity {
     }
     //========= 讀取訊息 END =========//
 
+    //========= 紀錄目前正在聊天的對象到 SharedPreferences 裡 START =========//
+    private void currentUser(String userid){
+        SharedPreferences.Editor editor = getSharedPreferences("PREFS", MODE_PRIVATE).edit();
+        editor.putString("currentUser", userid);
+        editor.apply();
+    }
+    //========= 紀錄目前正在聊天的對象到 SharedPreferences 裡 END =========//
+
     //========= 設置使用者狀態 START =========//
     private void setStatus(String status){
         // 取得現在使用者的 Database 參考
@@ -344,6 +353,7 @@ public class MessageActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         setStatus("online"); // 設置使用者狀態為上線
+        currentUser(userid); // 紀錄目前正在聊天的對象到 SharedPreferences 裡
     }
     //========= onResume END =========//
 
@@ -353,6 +363,7 @@ public class MessageActivity extends AppCompatActivity {
         super.onPause();
         reference.removeEventListener(seenListener); // 移除 seenListener --> onResume 時不用恢復嗎？
         setStatus("offline"); // 設置使用者狀態為下線
+        currentUser("none"); // 紀錄目前正在聊天的對象到 SharedPreferences 裡
     }
     //========= onPause END =========//
 }
