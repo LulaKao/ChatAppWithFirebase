@@ -25,6 +25,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.quarterlife.chatappwithfirebase.Fragments.ChatsFragment;
 import com.quarterlife.chatappwithfirebase.Fragments.ProfileFragment;
 import com.quarterlife.chatappwithfirebase.Fragments.UsersFragment;
+import com.quarterlife.chatappwithfirebase.Model.Chat;
 import com.quarterlife.chatappwithfirebase.Model.User;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,8 +51,8 @@ public class MainActivity extends AppCompatActivity {
         // 宣告元件
         profile_image = findViewById(R.id.profile_image);
         username = findViewById(R.id.username);
-        TabLayout tabLayout = findViewById(R.id.tab_layout);
-        ViewPager viewPager = findViewById(R.id.view_pager);
+        final TabLayout tabLayout = findViewById(R.id.tab_layout);
+        final ViewPager viewPager = findViewById(R.id.view_pager);
 
         // 取得目前的使用者
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -80,16 +81,46 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // 創建 ViewPagerAdapter
-        ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
-        // 新增 Fragment
-        viewPagerAdapter.addFragment(new ChatsFragment(),"Chats");
-        viewPagerAdapter.addFragment(new UsersFragment(),"Users");
-        viewPagerAdapter.addFragment(new ProfileFragment(),"Profile");
-        // 綁定 ViewPagerAdapter 到 ViewPager 上
-        viewPager.setAdapter(viewPagerAdapter);
-        // 綁定 ViewPager 到 TabLayout 上
-        tabLayout.setupWithViewPager(viewPager);
+        // 取得聊天紀錄的資料庫參考
+        reference = FirebaseDatabase.getInstance().getReference("Chats");
+        // 新增聊天紀錄的資料庫參考
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                // 創建 ViewPagerAdapter
+                ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+                int unread = 0; // 宣告變數
+
+                // 跑迴圈取得聊天資料
+                for(DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    Chat chat = snapshot.getValue(Chat.class); // 取得聊天資料
+
+                    // 如果接收者是使用者自己，且訊息未讀
+                    if(chat.getReceiver().equals(firebaseUser.getUid()) && !chat.isIs_seen()){
+                        unread++; // 未讀的訊息數 ++
+                    }
+                }
+
+                if(unread == 0){ // 如果沒有未讀訊息
+                    viewPagerAdapter.addFragment(new ChatsFragment(),"Chats"); // 新增 Chats Fragment
+                } else { // 如果有未讀訊息
+                    viewPagerAdapter.addFragment(new ChatsFragment(),"Chats (" + unread + ")"); // 新增 Chats Fragment
+                }
+
+                // 新增 Users 和 Profile Fragment
+                viewPagerAdapter.addFragment(new UsersFragment(),"Users");
+                viewPagerAdapter.addFragment(new ProfileFragment(),"Profile");
+                // 綁定 ViewPagerAdapter 到 ViewPager 上
+                viewPager.setAdapter(viewPagerAdapter);
+                // 綁定 ViewPager 到 TabLayout 上
+                tabLayout.setupWithViewPager(viewPager);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
     //========= onCreate END =========//
 
